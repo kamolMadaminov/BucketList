@@ -16,50 +16,80 @@ struct ContentView: View {
         )
     )
     
-    @State private var viewModel = ViewModel()
+    @StateObject private var viewModel = ViewModel()
+    @State private var isEditing = false
+    @State private var mapStyle: MapStyle = .standard
     
     var body: some View {
-        
-        if viewModel.isUnlocked {
-            MapReader{ proxy in
-                Map(initialPosition: startPosition) {
-                    ForEach(viewModel.locations) { location in
-                        Annotation(location.name, coordinate: location.coordinate) {
-                            Image(systemName: "star.circle")
-                                .resizable()
-                                .foregroundStyle(.red)
-                                .frame(width: 45, height: 45)
-                                .background(.white)
-                                .clipShape(.circle)
-                                .contextMenu {
-                                    Button("Edit") {
-                                         viewModel.selectedPlace = location
-                                    }
+        NavigationView {
+            VStack {
+                if viewModel.isUnlocked {
+                    MapReader { proxy in
+                        Map(initialPosition: startPosition) {
+                            ForEach(viewModel.locations) { location in
+                                Annotation(location.name, coordinate: location.coordinate) {
+                                    Image(systemName: "star.circle")
+                                        .resizable()
+                                        .foregroundStyle(.red)
+                                        .frame(width: 45, height: 45)
+                                        .background(.white)
+                                        .clipShape(.circle)
+                                        .contextMenu {
+                                            Button("Edit") {
+                                                 viewModel.selectedPlace = location
+                                                 isEditing = true
+                                            }
+                                        }
                                 }
-
+                            }
+                        }
+                        .mapStyle(mapStyle)
+                        .onTapGesture { position in
+                            if let coordinate = proxy.convert(position, from: .local) {
+                                viewModel.addLocation(at: coordinate)
+                            }
+                        }
+                        .sheet(isPresented: $isEditing) {
+                            if let place = viewModel.selectedPlace {
+                                EditView(location: place) {
+                                    viewModel.update(location: $0)
+                                }
+                            }
+                        }
+                        .toolbar {
+                            ToolbarItem(placement: .navigationBarTrailing) {
+                                Menu {
+                                    Button("Standard") {
+                                        mapStyle = .standard
+                                    }
+                                    Button("Hybrid") {
+                                        mapStyle = .hybrid
+                                    }
+                                } label: {
+                                    Image(systemName: "map")
+                                }
+                            }
                         }
 
-
                     }
-                }
-                .mapStyle(.hybrid(elevation: .realistic))
-                .onTapGesture { position in
-                    if let coordinate = proxy.convert(position, from: .local) {
-                        viewModel.addLocation(at: coordinate)
+                } else {
+                    VStack {
+                        Button("Authenticate") {
+                            viewModel.authenticate()
+                        }
                     }
-                }
-                .sheet(item: $viewModel.selectedPlace) { place in
-                    EditView(location: place) {
-                        viewModel.update(location: $0)
+                    .alert("Please, try again", isPresented: $viewModel.showErrorMessage) {
+                        Button("OK") {}
+                    } message: {
+                        Text(viewModel.errorMessage)
                     }
+                    .padding()
+                    .background(.blue)
+                    .foregroundStyle(.white)
+                    .clipShape(.capsule)
                 }
             }
-        } else {
-            Button("Unlock places", action: viewModel.authenticate)
-                .padding()
-                .background(.blue)
-                .foregroundStyle(.white)
-                .clipShape(.capsule)
+            .navigationTitle("Bucket List")
         }
     }
 }

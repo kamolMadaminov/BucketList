@@ -9,13 +9,15 @@ import CoreLocation
 import Foundation
 import LocalAuthentication
 import MapKit
+import SwiftUI
 
 extension ContentView {
-    @Observable
-    class ViewModel {
+    class ViewModel: ObservableObject {
         private(set) var locations: [Location]
         var selectedPlace: Location?
-        var isUnlocked = false
+        @Published var isUnlocked = false
+        @Published var showErrorMessage = false
+        @Published var errorMessage = ""
         
         let savePath = URL.documentsDirectory.appending(path: "SavedPlaces")
         
@@ -59,16 +61,21 @@ extension ContentView {
             if context.canEvaluatePolicy(.deviceOwnerAuthenticationWithBiometrics, error: &error){
                 let reason = "Please, authenticate to unlock your places!"
                 
-                context.evaluatePolicy(.deviceOwnerAuthenticationWithBiometrics, localizedReason: reason) { success, authenticationError in
-                    if success{
-                        self.isUnlocked = true
-                    } else{
-                        // error
+                context.evaluatePolicy(.deviceOwnerAuthenticationWithBiometrics, localizedReason: reason) { [self] success, authenticationError in
+                    DispatchQueue.main.async {
+                        if success{
+                            self.isUnlocked = true
+                        } else{
+                            self.isUnlocked = false
+                            self.showErrorMessage = true
+                            self.errorMessage = authenticationError?.localizedDescription ?? "Unknown error"
+                        }
                     }
                 }
             } else {
                 // no biometrics
             }
         }
+        
     }
 }

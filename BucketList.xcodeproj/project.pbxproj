@@ -6,8 +6,13 @@
 	objectVersion = 77;
 	objects = {
 
+/* Begin PBXBuildFile section */
+		CE7ACC112DA6CE1A007C1564 /* EditViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = CE7ACC102DA6CE1A007C1564 /* EditViewModel.swift */; };
+/* End PBXBuildFile section */
+
 /* Begin PBXFileReference section */
 		CE53217E2DA580E1001B8441 /* BucketList.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = BucketList.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		CE7ACC102DA6CE1A007C1564 /* EditViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EditViewModel.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFileSystemSynchronizedBuildFileExceptionSet section */
@@ -45,6 +50,7 @@
 		CE5321752DA580E1001B8441 = {
 			isa = PBXGroup;
 			children = (
+				CE7ACC102DA6CE1A007C1564 /* EditViewModel.swift */,
 				CE5321802DA580E1001B8441 /* BucketList */,
 				CE53217F2DA580E1001B8441 /* Products */,
 			);
@@ -132,6 +138,7 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				CE7ACC112DA6CE1A007C1564 /* EditViewModel.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
